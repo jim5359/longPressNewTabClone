@@ -13,6 +13,8 @@ downpos.y = 0;
 
 window.addEventListener("dragstart",onDrag,true);
 window.addEventListener('drop', checkPostion,true);
+window.addEventListener('dragenter', function(event) { event.preventDefault(); },true);
+window.addEventListener('dragover', function(event) { event.preventDefault(); },true);
 document.addEventListener("visibilitychange", function(e){
 	canselclickflag = false;
 	mouseupflag = true;

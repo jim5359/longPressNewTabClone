@@ -7,7 +7,7 @@ optobj.m = "none";
 optobj.r = "none";
 optobj.waittime = 250;
 optobj.mdrag = false;
-optobj.nextto = false;
+optobj.openposition = "end";
 optobj.dl = "none";
 optobj.dr = "none";
 optobj.du = "none";
@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded",function(e){
 	document.getElementById("dragactionleft").value = optobj.l;
 	if(optobj.m)document.getElementById("dragactionmiddle").value = optobj.m;
 	document.getElementById("dragactionright").value = optobj.r;
+	document.getElementById("openposition").value = optobj.openposition;
 	document.getElementById("detectval").addEventListener("change",changeDetectVal,false);
 	document.getElementById("addbutton2").addEventListener("click",clickAddButton2,false);
 	changeLongPressAction(document.getElementById("dragactionleft"),"l","web_service_lurl_container",true)
@@ -118,17 +119,13 @@ document.addEventListener("DOMContentLoaded",function(e){
 
 
 	document.getElementById("enabledrag").addEventListener("change",changeEnableDrag,false);
-	document.getElementById("enablenextto").addEventListener("change",changeEnableNextTo,false);
+	document.getElementById("openposition").addEventListener("change",changeOpenPosition,false);
 	document.getElementById("ddetectval").addEventListener("change",dchangeDetectVal,false);
 	document.getElementById("ddetectval").value = optobj.dxval;
 	document.getElementById("ddetectvallbl").textContent = optobj.dxval;
 	if(optobj.mdrag){
 		document.getElementById("enabledrag").checked = true;
 		document.getElementById("dragcontainer").style.display = "block"
-	}
-	
-	if(optobj.nextto){
-		document.getElementById("enablenextto").checked = true;
 	}
 }, false);
 
@@ -185,12 +182,8 @@ function changeEnableDrag(e){
 	};
 	storeOption();
 }
-function changeEnableNextTo(e){
-	if (this.checked) {
-		optobj.nextto = true;
-	}else{
-		optobj.nextto = false;
-	};
+function changeOpenPosition(e){
+	optobj.openposition =  this.value;
 	storeOption();
 }
 function changeDetectVal(e){
