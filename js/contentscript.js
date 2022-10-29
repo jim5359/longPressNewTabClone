@@ -12,7 +12,8 @@ downpos.x = 0;
 downpos.y = 0;
 
 window.addEventListener("dragstart",onDrag,true);
-window.addEventListener('drop', checkPostion,true);
+window.addEventListener('drop',checkMousePostion,true);
+window.addEventListener("touchmove",onDrag,true);
 window.addEventListener('dragenter', function(event) { event.preventDefault(); },true);
 window.addEventListener('dragover', function(event) { event.preventDefault(); },true);
 document.addEventListener("visibilitychange", function(e){
@@ -31,30 +32,51 @@ window.addEventListener("contextmenu",function(e){
 function addTag(){
 	if(!addeventflag){
 		addeventflag = true;
-		window.addEventListener("mousedown",function(e){
-			clearTimeout(eventtimerid);
-			canselclickflag = false;
-			mouseupflag = false;
-			cancelflg = false;
-			delem = null;
-			if(e.button === 0){
-				X = e.screenX;
-				Y = e.screenY;
-			}else{
-				X = 0;
-				Y = 0;
-			}
-			checkA(e.target,e.button,e)
-			if(e.target&&e.target.tagName === "IMG"){
-				delem = null;
-			}			
-		},true);
-		window.addEventListener("mouseup",function(e){
-			clearTimeout(eventtimerid);
-			mouseupflag = true;
-		},true);
+		window.addEventListener("mousedown",onMouseDown,true);
+		window.addEventListener("mouseup",onMouseUp,true);
+		window.addEventListener("touchstart",onTouch,true);
+		window.addEventListener("touchend",onTouchEnd,true);
 	}
 }
+
+function onMouseDown(e){
+	onDown(e, false)
+}
+function onTouch(e){
+	onDown(e, true)
+}
+function onTouchEnd(e){
+	clearTimeout(eventtimerid);
+	mouseupflag = true;
+	checkPostion(e, true);
+}
+
+function onDown(e, touch){
+	clearTimeout(eventtimerid);
+	canselclickflag = false;
+	mouseupflag = false;
+	cancelflg = false;
+	delem = null;
+	if(touch === true){
+		X = e.changedTouches[0].screenX;
+		Y = e.changedTouches[0].screenY;
+	}else if(e.button === 0){
+		X = e.screenX;
+		Y = e.screenY;
+	}else{
+		X = 0;
+		Y = 0;
+	}
+	checkA(e.target,e.button,e)
+	if(e.target&&e.target.tagName === "IMG"){
+		delem = null;
+	}			
+}
+		
+function onMouseUp(e){
+	clearTimeout(eventtimerid);
+	mouseupflag = true;
+}		
 function onDrag(e){
 	mouseupflag = true;
 	clearTimeout(eventtimerid);
@@ -74,6 +96,10 @@ function checkA(elem,button,e,mode){
 		elem.addEventListener("mousemove",mouseMoveLink,true);
 		elem.removeEventListener("click",clickLink,true);
 		elem.addEventListener("click",clickLink,true);
+		elem.removeEventListener("touchmove",mouseMoveLink,true);
+		elem.addEventListener("touchmove",mouseMoveLink,true);
+		elem.removeEventListener("touchstart",clickLink,true);
+		elem.addEventListener("touchstart",clickLink,true);
 		chrome.runtime.sendMessage({stat:"init",url:host},function(resp){
 			if(!resp.opt || !resp.opt.l)return;
 			optobj = resp.opt;
@@ -109,15 +135,23 @@ function checkA(elem,button,e,mode){
 		delem = null;
 	}
 }
-function checkPostion(e){
+function checkMousePostion(e){
+	checkPostion(e, false);
+}
+function checkPostion(e, touch){
 	var flg = null;
 	if(delem&&!cancelflg&&X&&Y){
 		cancelflg = true;
 		if(optobj&&optobj.mdrag){
-			e.preventDefault();
+			if (!touch) e.preventDefault();
 			e.stopPropagation();
-			var x = e.screenX;
-			var y = e.screenY;
+			if (touch) {
+				var x = e.changedTouches[0].screenX;
+				var y = e.changedTouches[0].screenY;
+			} else {
+				var x = e.screenX;
+				var y = e.screenY;
+			}
 			optobj.dxval = optobj.dxval -0;
 			if(y >= (Y+optobj.dxval)){
 				flg = "down";
